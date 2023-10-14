@@ -6,7 +6,7 @@ import { MatTableModule } from '@angular/material/table';
 import { BrowserAnimationsModule } from '@angular/platform-browser/animations';
 import { AppRoutingModule } from './app-routing.module';
 import { AppComponent } from './app.component';
-import { FormsModule } from '@angular/forms';
+import { FormsModule, ReactiveFormsModule } from '@angular/forms';
 import { MatFormFieldModule } from '@angular/material/form-field';
 import { MatIconModule } from '@angular/material/icon';
 import { MatInputModule } from '@angular/material/input';
@@ -17,6 +17,8 @@ import { MatNativeDateModule } from '@angular/material/core';
 import { MatDatepickerModule } from '@angular/material/datepicker';
 import {MatDividerModule} from '@angular/material/divider';
 import {MatListModule} from '@angular/material/list';
+import { HttpClientModule } from '@angular/common/http';
+import {MatSlideToggleModule} from '@angular/material/slide-toggle';
 
 @NgModule({
   declarations: [
@@ -26,6 +28,7 @@ import {MatListModule} from '@angular/material/list';
     BrowserModule,
     AppRoutingModule,
     BrowserAnimationsModule,
+    HttpClientModule,
     MatTableModule,
     MatPaginatorModule,
     FormsModule, MatFormFieldModule, MatInputModule, MatIconModule,
@@ -33,7 +36,10 @@ import {MatListModule} from '@angular/material/list';
     MatSelectModule,MatSidenavModule,
     MatDatepickerModule,
     MatNativeDateModule,
-    MatDividerModule,MatListModule
+    MatDividerModule,MatListModule,
+    ReactiveFormsModule,
+    MatSlideToggleModule,
+    FormsModule
   ],
   providers: [],
   bootstrap: [AppComponent]
