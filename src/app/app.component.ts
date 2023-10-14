@@ -24,6 +24,8 @@ export class AppComponent {
 
   labelData: any = [];
 
+  uploadedImageName: string = '';
+
   bannerForm!: FormGroup;
 
   @ViewChild(MatPaginator) paginator!: MatPaginator;
@@ -132,6 +134,21 @@ export class AppComponent {
 
   editBanner(bannerId: string) {
     this.fetchSingleBannerData(bannerId);
+  }
+
+  uploadImage(event: any): void {
+    const formData = new FormData();
+    const image = event?.target?.files?.[0];
+    formData.set('blob', image);
+    const url = 'https://development.api.optio.ai/api/v2/blob/upload';
+    this.httpService.post(url, formData).subscribe((response) => {
+      console.log('upload', response)
+      this.bannerForm.get('fileId')?.setValue(response?.data?.id)
+      this.uploadedImageName = response?.data?.fileName;
+
+    })
+
+    console.log('ak movida', image);
   }
 
 }
