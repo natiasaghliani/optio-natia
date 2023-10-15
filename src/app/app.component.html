@@ -1,17 +1,20 @@
-<mat-drawer-container class="example-container" [hasBackdrop]="true">
-  <mat-drawer #drawer mode="over" position="end" class="w-4/12 p-4">
+<mat-drawer-container class="min-h-screen	" [hasBackdrop]="true">
+  <mat-drawer #drawer mode="over" position="end" class="w-4/12 p-4" (openedChange)="drawerStateChange($event)">
     <h3 class="text-2xl font-bold mb-5">Add Banner</h3>
     <mat-divider></mat-divider>
     <form *ngIf="bannerForm" [formGroup]="bannerForm">
       <div class="mb-5 mt-5">
         <p class="font-medium mb-3">Add Banner Image</p>
-        <div>
+        <div class="flex items-start gap-10">
           <input type="file" id="file-upload" hidden (input)="uploadImage($event)">
-          <label for="file-upload" class="inline-flex items-center gap-2.5 text-purple-700 hover:text-white border border-purple-700 hover:bg-purple-800 focus:ring-4 focus:outline-none focus:ring-purple-300 font-medium rounded-lg text-sm px-5 py-2.5 text-center mr-2 mb-2 ">
+          <label for="file-upload"
+            class="inline-flex items-center gap-2.5 text-purple-700 hover:text-white border border-purple-700 hover:bg-purple-800 focus:ring-4 focus:outline-none focus:ring-purple-300 font-medium rounded-lg text-sm px-5 py-2.5 text-center mr-2 mb-2 ">
             <mat-icon>cloud_upload</mat-icon>
             Upload
           </label>
-          <p *ngIf="uploadedImageName">{{uploadedImageName}}</p>
+          <img *ngIf="bannerForm.get('fileId')?.value"
+            src="https://development.api.optio.ai/api/v2/blob/{{bannerForm.get('fileId')?.value}}" alt="Banner"
+            class="w-20 max-h-20 object-cover">
         </div>
       </div>
       <div class="flex flex-col mb-5">
@@ -36,7 +39,7 @@
         <div class="flex gap-4">
           <mat-form-field class="w-full">
             <mat-label>Start Date</mat-label>
-            <input matInput [matDatepickerFilter]="myFilter" [matDatepicker]="startDate" formControlName="startDate">
+            <input matInput [matDatepicker]="startDate" formControlName="startDate">
             <mat-hint>MM/DD/YYYY</mat-hint>
             <mat-datepicker-toggle matIconSuffix [for]="startDate"></mat-datepicker-toggle>
             <mat-datepicker #startDate></mat-datepicker>
@@ -44,12 +47,12 @@
 
           <mat-form-field class="w-full">
             <mat-label>End Date</mat-label>
-            <input matInput [matDatepickerFilter]="myFilter" [matDatepicker]="endDate" formControlName="endDate">
+            <input matInput [matDatepicker]="endDate" formControlName="endDate">
             <mat-hint>MM/DD/YYYY</mat-hint>
             <mat-datepicker-toggle matIconSuffix [for]="endDate"></mat-datepicker-toggle>
             <mat-datepicker #endDate></mat-datepicker>
           </mat-form-field>
-      </div>
+        </div>
       </div>
 
       <div class="flex flex-col mb-5">
@@ -90,10 +93,10 @@
       </div>
       <div>
         <label class="font-medium mb-3">Add URL</label>
-          <mat-form-field class="w-full">
-            <mat-label>Url</mat-label>
-            <input type="url" matInput placeholder="URL" formControlName="url">
-          </mat-form-field>
+        <mat-form-field class="w-full">
+          <mat-label>Url</mat-label>
+          <input type="url" matInput placeholder="URL" formControlName="url">
+        </mat-form-field>
       </div>
 
       <div class="flex flex-col mb-5">
@@ -101,78 +104,85 @@
         <mat-slide-toggle formControlName="active" color="primary">Active</mat-slide-toggle>
       </div>
 
-      <button mat-raised-button color="primary" class="w-full" (click)="submit()">Add Banner</button>
+      <button mat-raised-button color="primary" class="w-full" (click)="saveForm()">Add Banner</button>
     </form>
   </mat-drawer>
   <mat-drawer-content>
-   
+
     <div class="p-5">
       <h1 class="text-4xl font-extrabold mb-5 ">Banners</h1>
-    
+
       <div class="mat-elevation-z8 p-4 rounded-lg">
-    
+
         <div class="flex justify-between items-center">
-          <button mat-raised-button color="primary">Edit Banner <mat-icon>edit</mat-icon></button>
-          <button mat-raised-button (click)="drawer.toggle()" color="primary">Add Banner <mat-icon>add_to_photos</mat-icon></button>
-    
+          <button mat-raised-button (click)="openDrawer()" color="primary">Add Banner
+            <mat-icon>add_to_photos</mat-icon></button>
+
           <form>
             <mat-form-field>
               <mat-label>Search</mat-label>
               <mat-icon matPrefix>search</mat-icon>
-              <input matInput>
-              
+              <input matInput (input)="filterText($event)">
+
             </mat-form-field>
           </form>
         </div>
-    
+
         <div *ngIf="bannersData" class="">
-          <table mat-table [dataSource]="bannersData">
-    
+          <table mat-table [dataSource]="bannersData" matSort (matSortChange)="sortChange($event)">
+
             <ng-container matColumnDef="image">
               <th mat-header-cell *matHeaderCellDef> Image </th>
-              <td mat-cell *matCellDef="let element"> {{element.image}} </td>
+              <td mat-cell *matCellDef="let element">
+                <div class="p-3">
+                  <img src="https://development.api.optio.ai/api/v2/blob/{{element.fileId}}" alt="Banner"
+                    class="w-20 h-20 object-contain">
+                </div>
+              </td>
             </ng-container>
-    
+
             <ng-container matColumnDef="name">
-              <th mat-header-cell *matHeaderCellDef> Name </th>
+              <th mat-header-cell *matHeaderCellDef mat-sort-header> Name </th>
               <td mat-cell *matCellDef="let element"> {{element.name}} </td>
             </ng-container>
-    
+
             <ng-container matColumnDef="active">
-              <th mat-header-cell *matHeaderCellDef> Active </th>
+              <th mat-header-cell *matHeaderCellDef mat-sort-header> Active </th>
               <td mat-cell *matCellDef="let element"> {{element.active ? 'Published' : 'Unpublished'}} </td>
             </ng-container>
-    
+
             <ng-container matColumnDef="zoneId">
-              <th mat-header-cell *matHeaderCellDef> ZoneId </th>
+              <th mat-header-cell *matHeaderCellDef mat-sort-header> ZoneId </th>
               <td mat-cell *matCellDef="let element"> {{element.zoneId}} </td>
             </ng-container>
-    
+
             <ng-container matColumnDef="startDate">
-              <th mat-header-cell *matHeaderCellDef> Start Date </th>
+              <th mat-header-cell *matHeaderCellDef mat-sort-header> Start Date </th>
               <td mat-cell *matCellDef="let element"> {{element.startDate | date}} </td>
             </ng-container>
-    
+
             <ng-container matColumnDef="endDate">
-              <th mat-header-cell *matHeaderCellDef> End Date </th>
+              <th mat-header-cell *matHeaderCellDef mat-sort-header> End Date </th>
               <td mat-cell *matCellDef="let element"> {{element.endDate | date}} </td>
             </ng-container>
-    
+
             <ng-container matColumnDef="labels">
               <th mat-header-cell *matHeaderCellDef> Labels </th>
               <td mat-cell *matCellDef="let element"> {{element.labels}} </td>
             </ng-container>
-    
+
             <tr mat-header-row *matHeaderRowDef="displayedColumns"></tr>
-            <tr mat-row *matRowDef="let row; columns: displayedColumns;" (click)="drawer.toggle(); editBanner(row?.id)"></tr>
+            <tr mat-row *matRowDef="let row; columns: displayedColumns;" class="cursor-pointer hover:bg-slate-100	"
+              (click)="openDrawer(); editBanner(row?.id)"></tr>
           </table>
-    
-          <mat-paginator [pageSizeOptions]="[3, 6, 10, 20]" showFirstLastButtons aria-label="Select page of periodic elements">
+
+          <mat-paginator [length]="totalPages" [pageIndex]="pageInfo.pageIndex" [pageSize]="pageInfo.pageSize"
+            [pageSizeOptions]="[5, 10, 20]" showFirstLastButtons (page)="pageChange($event)">
           </mat-paginator>
         </div>
-    
+
       </div>
     </div>
-    
+
   </mat-drawer-content>
 </mat-drawer-container>
